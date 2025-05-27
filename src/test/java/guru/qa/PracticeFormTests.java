@@ -2,28 +2,37 @@ package guru.qa;
 
 import com.codeborne.selenide.Configuration;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 
 import java.io.File;
 
-import static com.codeborne.selenide.Condition.exactText;
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
 
 public class PracticeFormTests {
 
+
+    @BeforeAll
+    static void beforeAll() {
+        Configuration.baseUrl = "https://demoqa.com";
+        Configuration.browserSize = "1920x1080";
+    }
+
     @BeforeEach
     void setUp() {
         WebDriverManager.chromedriver().setup();
-        Configuration.browserSize = "1920x1080";
     }
 
     @Test
     void testFillingPracticeForm(){
 
-        open("https://demoqa.com/automation-practice-form");
+        open("/automation-practice-form");
+
+        $(".practice-form-wrapper").shouldHave(text("Student Registration Form"));
 
         // Text boxes
 
@@ -41,10 +50,10 @@ public class PracticeFormTests {
 
         // date box
 
-        $("#dateOfBirth-wrapper").$("#dateOfBirthInput").click();
-        $("#dateOfBirth-wrapper").$(".react-datepicker__year-select").find(byText("1994")).click();
-        $("#dateOfBirth-wrapper").$(".react-datepicker__month-select").find(byText("June")).click();
-        $("#dateOfBirth-wrapper").$(".react-datepicker__month").find(byText("8")).click();
+        $("#dateOfBirthInput").click();
+        $(".react-datepicker__year-select").selectOption("1994");
+        $(".react-datepicker__month-select").selectOption("June");
+        $$(".react-datepicker__day:not(.react-datepicker__day--outside-month)").find(exactText("30")).click();
         $("#dateOfBirthInput").sendKeys(Keys.ESCAPE);
 
         // Drop-down list
@@ -58,7 +67,8 @@ public class PracticeFormTests {
 
         // Select file
 
-        $("#uploadPicture").scrollTo().uploadFile(new File("src\\test\\resources\\img\\photo.jpg"));
+        $("#uploadPicture").scrollTo().uploadFile(new File("src/test/resources/img/photo.jpg"));
+        $("#uploadPicture").scrollTo().uploadFromClasspath("img/photo.jpg"); // 2nd variant
 
         // Text box
 
@@ -66,11 +76,11 @@ public class PracticeFormTests {
 
         // Drop-down list
 
-        $("#stateCity-wrapper").$(byText("Select State")).click();
-        $("#stateCity-wrapper").$(byText("Haryana")).click();
+        $("#state").click();
+        $("#state").$(byText("Haryana")).click();
 
-        $("#stateCity-wrapper").$(byText("Select City")).click();
-        $("#stateCity-wrapper").$(byText("Karnal")).click();
+        $("#city").$(byText("Select City")).click();
+        $("#city").$(byText("Karnal")).click();
 
         // Button
 
@@ -98,7 +108,7 @@ public class PracticeFormTests {
         $("div.table-responsive").$$("tbody>tr").get(3).$$("td").get(1).shouldHave(exactText("8900500511"));
 
         $("div.table-responsive").$$("tbody>tr").get(4).$$("td").get(0).shouldHave(exactText("Date of Birth"));
-        $("div.table-responsive").$$("tbody>tr").get(4).$$("td").get(1).shouldHave(exactText("08 June,1994"));
+        $("div.table-responsive").$$("tbody>tr").get(4).$$("td").get(1).shouldHave(exactText("30 June,1994"));
 
         $("div.table-responsive").$$("tbody>tr").get(5).$$("td").get(0).shouldHave(exactText("Subjects"));
         $("div.table-responsive").$$("tbody>tr").get(5).$$("td").get(1).shouldHave(exactText("English"));
